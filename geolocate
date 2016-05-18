@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+mkdir -p countries
+
+while IFS='' read -r line || [[ -n "$line" ]]; do
+    ip=$(echo "$line" | awk '{print $4}')
+    geo=$(geoiplookup $ip | sed 's/GeoIP Country Edition: //g')
+    abbrev=$(echo $geo | sed 's/,.*//g')
+    ipaddr=$(printf '%-15s' $ip)
+    echo $ipaddr >> countries/$abbrev
+done < "$1"
