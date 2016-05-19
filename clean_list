@@ -9,13 +9,14 @@ fi
 files=$(find $1 -type f)
 t=""
 for file in $files; do
-    for ip in $(head -10 $file); do
-        lat=$($PING $ip | sed -nE 's/.*time=(.*) ms.*/\1/p')
-        if [ -n "$lat" ]; then
-            t=$t"\n"$lat
+    for ip in $(head -30 $file); do
+        if $PING $ip | sed -nE 's/.*time=(.*) ms.*/\1/p'; then
+            echo "Deleting $ip from $file"
+            sed -i "/$ip/d" $file
+        else
+            echo "Keeping  $ip from $file"
         fi
     done
 done
-t=$(echo -e "$t" | tail -n +2)
 
 echo "$t" | awk '{ total += $1 } END { print total/NR }'
